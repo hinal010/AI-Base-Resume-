@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Profile | CareerForge AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="profile-container">
+        <h2>CareerForge AI</h2>
+        <p class="subtitle">Enter your Personal Details</p>
+
+        {% if message %}
+        <p class="success">{{ message }}</p>
+        <script>
+            setTimeout(function() {
+            window.location.href = "/index";
+            }, 10000); // redirect after 2 seconds
+        </script>
+        {% endif %}
+
+        <div class="image-preview">
+            {% if profile_image %}
+            <img src="/{{ profile_image }}" alt="Profile Image">
+            {% endif %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data" action="/profile">
+            <input type="file" name="profile_image" accept="image/*">
+
+            <input type="text" name="full_name" placeholder="Full Name" value="{{ full_name or '' }}" required>
+            <input type="email" name="email" placeholder="Email Address" value="{{ email or '' }}" required>
+            <input type="text" name="phone" placeholder="Phone Number" value="{{ phone or '' }}">
+            <input type="text" name="location" placeholder="Location" value="{{ location or '' }}">
+
+            <button type="submit">Save Profile</button>
+        </form>
+    </div>
+</body>
+</html>

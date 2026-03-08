@@ -1,0 +1,265 @@
+/* =========================
+   Global Reset & Body
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f1f5f9;
+}
+
+/* =========================
+   Center Container
+========================= */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* =========================
+   Common Card Design
+========================= */
+.login-card,
+.register-card,
+.forgot-card {
+    background: white;
+    padding: 40px;
+    width: 370px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* =========================
+   Headings & Subtitle
+========================= */
+h2 {
+    margin-bottom: 8px;
+    color: #2563eb;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   Form Inputs
+========================= */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* =========================
+   Buttons
+========================= */
+button,
+.login-btn,
+.register-btn,
+.forgot-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover,
+.login-btn:hover,
+.register-btn:hover,
+.forgot-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* =========================
+   Forgot Password Link
+========================= */
+.forgot {
+    text-align: right;
+    font-size: 12px;
+}
+
+.forgot a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* =========================
+   Divider (Login Only)
+========================= */
+.divider {
+    margin: 20px 0;
+    position: relative;
+    text-align: center;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    height: 1px;
+    width: 40%;
+    background: #e2e8f0;
+    position: absolute;
+    top: 50%;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* =========================
+   Google Button (Login Page)
+========================= */
+a.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    padding: 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+a.google-btn img {
+    width: 18px;
+}
+
+a.google-btn:hover {
+    background-color: #f8fafc;
+}
+
+/* =========================
+   Links (Register / Login / Back)
+========================= */
+.register-link,
+.login-link,
+.back-link {
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.register-link a,
+.login-link a,
+.back-link a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* =========================
+   Messages
+========================= */
+.error {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.success {
+    color: green;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+/* =========================
+   Profile Page Styles
+========================= */
+
+/* Center Container */
+.profile-container {
+    background: white;
+    padding: 40px;
+    width: 370px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    margin: auto;
+}
+
+/* Profile Heading */
+.profile-container h2 {
+    margin-bottom: 15px;
+    color: #2563eb;
+}
+
+/* Image Preview */
+.image-preview {
+    margin-bottom: 20px;
+}
+
+.image-preview img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #cbd5e1;
+}
+
+/* Inputs */
+.profile-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+.profile-container input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* Submit Button */
+.profile-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.profile-container button:hover {
+    background-color: #1d4ed8;
+}
+
+/* Optional: small text for instructions */
+.profile-container .info {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 10px;
+}
