@@ -34,7 +34,7 @@ oauth.register(
 )
 @app.get("/auth/google")
 async def google_login(request: Request):
-    redirect_uri = "http://127.0.0.1:8000/auth"
+    redirect_uri =GOOGLE_REDIRECT_URI
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @app.get("/auth")
