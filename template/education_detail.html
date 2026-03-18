@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Education & Experience Management</title>
+    <link rel="stylesheet" href="/static/equ.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🎓 Education & Experience Management</h1>
+    {% set type = request.query_params.get("type") %}
+    {% set action = request.query_params.get("action") %}
+
+    {% if type and action %}
+        <p class="success">
+            {% if type == "education" %}
+                🎓 Education {{ action }} successfully!
+            {% elif type == "experience" %}
+                💼 Experience {{ action }} successfully!
+            {% elif type == "certification" %}
+                📜 Certification {{ action }} successfully!
+            {% endif %}
+        </p>
+    {% endif %}
+
+    <div class="section">
+        <h2>Education</h2>
+        <form method="post" action="/education_detail">
+            <input type="hidden" name="edu_id" id="edu_id">
+            <select name="degree" id="degree">
+                <option value="">Select Degree</option>
+        
+                {% for deg in degrees %}
+                    <option value="{{ deg.id }}">{{ deg.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="course" id="course">
+                <option value="">Select Course</option>
+            </select>
+            <select name="institution" id="institute">
+                <option value="">Select Institution</option>
+            </select>
+            <div class="date-group">
+                <input type="month" name="start_year" required>
+                <span class="to-text">to</span>
+                <input type="month" name="end_year" required>
+            </div>
+            <input type="text" name="grade" placeholder="CGPA / Percentage" required>
+            <button class="add-btn" type="submit">Add Education</button>
+        </form>
+
+        {% if education_list %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Degree</th>
+                    <th>University</th>
+                    <th>Year</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for edu in education_list %}
+                <tr>
+                    <td>{{ edu[4] }} ({{ edu[5] }})</td>
+                        <td>{{ edu[6] }}</td>
+                        <td>{{ edu[7] }} - {{ edu[8] }}</td>
+                    <td>
+                    <div class="action-buttons">
+                       <button class="edit-btn"
+                            onclick="editEducation(
+                                '{{edu[0]}}',
+                                '{{edu[1]}}',
+                                '{{edu[2]}}',
+                                '{{edu[3]}}',
+                                '{{edu[7]}}',
+                                '{{edu[8]}}',
+                                '{{edu[9]}}'
+                            )">
+                            Edit
+                        </button>
+                        <button class="delete-btn" onclick="commonDelete('/delete-education/{{ edu[0] }}', 'Are you sure you want to delete this Education ?')">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Work Experience</h2>
+        <form method="post" action="/add-experience">
+        <input type="hidden" name="exp_id" id="exp_id">
+
+            <select name="experience_type" id="experience_type" required>
+                <option value="">Select Experience Type</option>
+                {% for exp in exp_types %}
+                    <option value="{{ exp[0] }}">{{ exp[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="job_title" id="job_title" required>
+                <option value="">Select Job Title</option>
+                {% for job in job_titles %}
+                    <option value="{{ job[0] }}">{{ job[1] }}</option>
+                {% endfor %}
+                <option value="other">Other</option>
+            </select>
+
+            <input type="text" name="custom_job_title" id="custom_job_title"
+                placeholder="Enter Job Title" style="display:none;">
+
+            <input type="text" name="company_name" id="company_name" placeholder="Company Name" required>
+
+            <div class="date-group">
+                <input type="month" name="start_year" id="exp_start_year" required>
+                <span class="to-text">to</span>
+                <input type="month" name="end_year" id="exp_end_year">
+            </div>
+
+            <label class="current-job">
+                <input type="checkbox" name="current_job" id="current_job"> Currently Working Here
+            </label>
+
+            <textarea name="responsibilities" id="responsibilities" placeholder="Responsibilities"></textarea>
+
+            <button class="add-btn" type="submit">Add Experience</button>
+        </form>
+        {% if experience_list %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Year</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in experience_list %}
+                    <tr>
+                        <td>{{ exp[4] }} ({{ exp[2] }})</td>
+                        <td>{{ exp[5] }}</td>
+                        <td>{{ exp[6] }} - {{ exp[7] if exp[7] else 'Present' }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="edit-btn"
+                                        data-id="{{ exp[0] }}"
+                                        data-type="{{ exp[1] }}"
+                                        data-jobid="{{ exp[3] if exp[3] else 'other' }}"
+                                        data-jobtext="{{ exp[4] if exp[4] else '' }}"
+                                        data-company="{{ exp[5] if exp[5] else '' }}"
+                                        data-start="{{ exp[6] if exp[6] else '' }}"
+                                        data-end="{{ exp[7] if exp[7] else '' }}"
+                                        data-current="{{ exp[8] }}"
+                                        data-responsibilities="{{ exp[9] if exp[9] else '' }}"
+                                        onclick="editExperienceFromButton(this)">
+                                        Edit
+                                </button>
+
+                               <button class="delete-btn" onclick="commonDelete('/delete-experience/{{ exp[0] }}', 'Are you sure you want to delete this experience?')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+    </div>
+    <div class="section">
+    <h2>Certifications</h2>
+
+    <form method="post" action="/add-certification">
+        <input type="hidden" name="cert_id" id="cert_id">
+        <input type="text" name="certification_name" id="certification_name" placeholder="Certification Name" required>
+        <input type="text" name="organization" id="organization" placeholder="Organization" required>
+        <input type="month" name="cert_date" id="cert_date" required>
+        <button class="add-btn" type="submit">Add Certification</button>
+    </form>
+
+    {% if certification_list %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Certification Name</th>
+                <th>Organization</th>
+                <th>Year</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certification_list %}
+            <tr>
+                <td>{{ cert[1] }}</td>
+                <td>{{ cert[2] }}</td>
+                <td>{{ cert[3] }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="edit-btn"
+                            onclick="editCertification('{{ cert[0] }}', '{{ cert[1] }}', '{{ cert[2] }}', '{{ cert[3] }}')">
+                            Edit
+                        </button>
+                        <button type="button" class="delete-btn"
+                            onclick="commonDelete('/delete-certification/{{ cert[0] }}', 'Are you sure you want to delete this certification?')">
+                            Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    </div>
+</div>
+<script src="/static/script.js"></script>
+</body>
+</html>

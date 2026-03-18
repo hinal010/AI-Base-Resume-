@@ -11,6 +11,8 @@ def create_access_token(data: dict):
 
 
 def verify_token(token: str):
+    if not token:  # check if token is None
+        return None
     """
     Decode JWT token and return payload.
     """
@@ -21,7 +23,8 @@ def verify_token(token: str):
             return None
         # Return payload directly
         return payload
+        
     except jwt.ExpiredSignatureError:
         return None
-    except jwt.PyJWTError:
+    except JWTError:
         return None

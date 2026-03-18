@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
-from crud import create_user, get_user_by_email,get_user_profile,update_user_profile
+from crud import create_user, get_user_by_email,get_user_profile,update_user_profile,get_education,add_education,update_education,get_courses_by_degree,get_degrees,get_institutes_by_course,delete_education,get_experience_types,get_job_titles,add_experience, get_experience, update_experience, delete_experience,add_certification, get_certifications, update_certification, delete_certification
 from auth import verify_password
 from jwt_token import create_access_token, verify_token
 from auth_config import CLIENT_ID, CLIENT_SECRET, GOOGLE_REDIRECT_URI,SESSION_SECRET_KEY
@@ -37,7 +37,7 @@ async def google_login(request: Request):
     redirect_uri =GOOGLE_REDIRECT_URI
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@app.get("/auth")
+@app.get("/auth/google/callback")
 async def google_callback(request: Request):
     # Get Google token
     token = await oauth.google.authorize_access_token(request)
@@ -135,42 +135,6 @@ def logout():
     response.delete_cookie(key="access_token")
     return response
 
-# @app.get("/profile", response_class=HTMLResponse)
-# def profile_page(request: Request, current_user=Depends(get_current_user)):
-#     if not current_user:
-#         return RedirectResponse("/login")
-#     user_profile = get_user_profile(current_user)
-#     return templates.TemplateResponse("profile.html", {"request": request, "profile": user_profile})
-
-
-# @app.post("/profile")
-# def update_profile(
-#     request: Request,
-#     phone: str = Form(None),
-#     location: str = Form(None),
-#     profile_image: UploadFile = File(None),
-#     current_user=Depends(get_current_user)
-# ):
-#     if not current_user:
-#         return RedirectResponse("/login")
-
-#     image_path = None
-#     if profile_image:
-#         import os
-#         os.makedirs("static/images", exist_ok=True)
-#         image_path = f"static/images/{profile_image.filename}"
-#         with open(image_path, "wb") as f:
-#             f.write(profile_image.file.read())
-
-#     update_user_profile(
-#         user_id=current_user,
-#         phone=phone,
-#         location=location,
-#         profile_image=image_path
-#     )
-
-#     return RedirectResponse("/profile", status_code=302)
-
 @app.get("/profile")
 def profile_page(request: Request):
     token = request.cookies.get("access_token")
@@ -236,3 +200,189 @@ def update_profile(
             "message": "Profile updated successfully!"
         }
     )
+@app.get("/education_detail")
+def education_page(request: Request):
+
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    user_id = payload["user_id"]
+
+    education_list =get_education(user_id)
+    experience_list = get_experience(user_id)
+    certification_list = get_certifications(user_id)
+    degrees = get_degrees()
+    exp_types = get_experience_types()
+    job_titles = get_job_titles()
+
+    return templates.TemplateResponse(
+        "education_detail.html",
+        {
+            "request": request,
+            "education_list": education_list,
+            "experience_list": experience_list,
+             "certification_list": certification_list,
+            "degrees":degrees,
+            "exp_types": exp_types,
+            "job_titles": job_titles
+        
+        }
+    )
+@app.get("/get_courses/{degree_id}")
+def get_courses(degree_id: int):
+    return get_courses_by_degree(degree_id)
+
+@app.get("/get_institutes/{course_id}")
+def get_institutes(course_id: int):
+    return get_institutes_by_course(course_id)
+
+@app.post("/education_detail")
+def add_educations(
+    request: Request,
+    degree: int = Form(...),
+    course: int = Form(...),
+    institution: int = Form(...),
+    start_year: str = Form(...),
+    end_year: str = Form(...),
+    grade: str = Form(...),
+    edu_id: int = Form(None)
+):
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    user_id = payload["user_id"]
+
+    if edu_id:
+        update_education(
+            edu_id, degree, course, institution,
+            start_year, end_year, grade
+        )
+    else:
+        add_education(
+            user_id, degree, course, institution,
+            start_year, end_year, grade
+        )
+
+    if edu_id:
+        return RedirectResponse("/education_detail?type=education&action=updated", status_code=303)
+    else:
+        return RedirectResponse("/education_detail?type=education&action=added", status_code=303)
+@app.post("/delete-education/{edu_id}")
+def delete_education_route(request: Request, edu_id: int):
+
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    user_id = payload["user_id"]
+    delete_education(edu_id, user_id)
+
+    return RedirectResponse("/education_detail?type=education&action=deleted", status_code=303)
+
+@app.post("/add-experience")
+def add_experience_route(
+    request: Request,
+    experience_type: int = Form(...),
+    job_title: str = Form(...),
+    custom_job_title: str = Form(None),
+    company_name: str = Form(...),
+    start_year: str = Form(...),
+    end_year: str = Form(None),
+    current_job: str = Form(None),
+    responsibilities: str = Form(None),
+    exp_id: int = Form(None)
+):
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    user_id = payload["user_id"]
+    current_job_value = 1 if current_job else 0
+
+    if current_job_value == 1:
+        end_year = None
+
+    if job_title == "other":
+        job_title_id = None
+        final_custom_job_title = custom_job_title
+    else:
+        job_title_id = int(job_title)
+        final_custom_job_title = None
+
+    if exp_id:
+        update_experience(
+            exp_id, experience_type, job_title_id, final_custom_job_title,
+            company_name, start_year, end_year, current_job_value, responsibilities
+        )
+    else:
+        add_experience(
+            user_id, experience_type, job_title_id, final_custom_job_title,
+            company_name, start_year, end_year, current_job_value, responsibilities
+        )
+
+    if exp_id:
+        return RedirectResponse("/education_detail?type=experience&action=updated", status_code=303)
+    else:
+        return RedirectResponse("/education_detail?type=experience&action=added", status_code=303)
+
+@app.post("/delete-experience/{exp_id}")
+def delete_experience_route(request: Request, exp_id: int):
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    user_id = payload["user_id"]
+    delete_experience(exp_id, user_id)
+
+    return RedirectResponse("/education_detail?type=experience&action=deleted", status_code=303)
+
+@app.post("/add-certification")
+def add_certification_route(
+    request: Request,
+    certification_name: str = Form(...),
+    organization: str = Form(...),
+    cert_date: str = Form(...),
+    cert_id: int = Form(None)
+):
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = payload["user_id"]
+
+    if cert_id:
+        update_certification(cert_id, certification_name, organization, cert_date)
+    else:
+        add_certification(user_id, certification_name, organization, cert_date)
+
+    if cert_id:
+        return RedirectResponse("/education_detail?type=certification&action=updated", status_code=303)
+    else:
+        return RedirectResponse("/education_detail?type=certification&action=added", status_code=303)
+
+@app.post("/delete-certification/{cert_id}")
+def delete_certification_route(request: Request, cert_id: int):
+    token = request.cookies.get("access_token")
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = payload["user_id"]
+    delete_certification(cert_id, user_id)
+
+    return RedirectResponse("/education_detail?type=certification&action=deleted", status_code=303)
