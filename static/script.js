@@ -148,3 +148,48 @@ document.addEventListener("DOMContentLoaded", function () {
         if (msg) msg.style.display = "none";
     }, 3000);
 });
+
+function editJobRoleFromButton(btn) {
+    editJobRole(
+        btn.dataset.id,
+        btn.dataset.jobid,
+        btn.dataset.custom
+    );
+}
+
+function editJobRole(selectionId, jobRoleId, customJobTitle = "") {
+    document.getElementById("role_selection_id").value = selectionId;
+    document.getElementById("job_role_id").value = jobRoleId;
+
+    const customInput = document.getElementById("custom_job_role");
+
+    if (jobRoleId === "other") {
+        customInput.style.display = "block";
+        customInput.required = true;
+        customInput.value = customJobTitle;
+    } else {
+        customInput.style.display = "none";
+        customInput.required = false;
+        customInput.value = "";
+    }
+
+    document.getElementById("job_role_id").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+}
+const jobRoleSelect = document.getElementById("job_role_id");
+const customJobRoleInput = document.getElementById("custom_job_role");
+
+if (jobRoleSelect && customJobRoleInput) {
+    jobRoleSelect.addEventListener("change", function () {
+        if (this.value === "other") {
+            customJobRoleInput.style.display = "block";
+            customJobRoleInput.required = true;
+        } else {
+            customJobRoleInput.style.display = "none";
+            customJobRoleInput.required = false;
+            customJobRoleInput.value = "";
+        }
+    });
+}

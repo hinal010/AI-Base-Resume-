@@ -3,15 +3,9 @@ import sqlite3
 conn = sqlite3.connect("users.db")
 cur = conn.cursor()
 
-# Insert experience types
-cur.execute("INSERT INTO experience_type_master (type_name) VALUES ('Internship')")
-cur.execute("INSERT INTO experience_type_master (type_name) VALUES ('Full Time Job')")
-cur.execute("INSERT INTO experience_type_master (type_name) VALUES ('Part Time')")
-cur.execute("INSERT INTO experience_type_master (type_name) VALUES ('Freelance')")
-
 # Insert job roles
 cur.execute("""
-INSERT INTO job_title_master (job_title) VALUES
+INSERT INTO job_role (role_name) VALUES
 ('Software Developer'),
 ('Web Developer'),
 ('Frontend Developer'),
@@ -75,6 +69,4 @@ INSERT INTO job_title_master (job_title) VALUES
 """)
 
 conn.commit()
-conn.close()
-
-print("Data inserted successfully!")
+print("Job roles inserted successfully!")

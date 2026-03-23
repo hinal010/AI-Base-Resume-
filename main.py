@@ -5,7 +5,15 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
-from crud import create_user, get_user_by_email,get_user_profile,update_user_profile,get_education,add_education,update_education,get_courses_by_degree,get_degrees,get_institutes_by_course,delete_education,get_experience_types,get_job_titles,add_experience, get_experience, update_experience, delete_experience,add_certification, get_certifications, update_certification, delete_certification
+from crud import (
+    create_user, get_user_by_email, get_user_profile, update_user_profile,
+    get_education, add_education, update_education, get_courses_by_degree,
+    get_degrees, get_institutes_by_course, delete_education,
+    get_experience_types, get_job_titles, add_experience, get_experience,
+    update_experience, delete_experience, add_certification,
+    get_certifications, update_certification, delete_certification,
+    get_selected_job_titles, save_job_title_selection, delete_job_title_selection
+)
 from auth import verify_password
 from jwt_token import create_access_token, verify_token
 from auth_config import CLIENT_ID, CLIENT_SECRET, GOOGLE_REDIRECT_URI,SESSION_SECRET_KEY
@@ -37,7 +45,7 @@ async def google_login(request: Request):
     redirect_uri =GOOGLE_REDIRECT_URI
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@app.get("/auth/google/callback")
+@app.get("/auth")
 async def google_callback(request: Request):
     # Get Google token
     token = await oauth.google.authorize_access_token(request)
@@ -217,6 +225,7 @@ def education_page(request: Request):
     degrees = get_degrees()
     exp_types = get_experience_types()
     job_titles = get_job_titles()
+    selected_job_titles = get_selected_job_titles(user_id)
 
     return templates.TemplateResponse(
         "education_detail.html",
@@ -224,7 +233,8 @@ def education_page(request: Request):
             "request": request,
             "education_list": education_list,
             "experience_list": experience_list,
-             "certification_list": certification_list,
+            "certification_list": certification_list,
+            "selected_job_titles": selected_job_titles,
             "degrees":degrees,
             "exp_types": exp_types,
             "job_titles": job_titles
@@ -386,3 +396,59 @@ def delete_certification_route(request: Request, cert_id: int):
     delete_certification(cert_id, user_id)
 
     return RedirectResponse("/education_detail?type=certification&action=deleted", status_code=303)
+
+@app.post("/save-job-title-selection")
+def save_job_title_route(
+    request: Request,
+    job_title_id: str = Form(...),
+    custom_job_title: str = Form(None),
+    role_selection_id: int = Form(None)
+):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return RedirectResponse("/login", status_code=303)
+
+    payload = verify_token(token)
+    if not payload:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = payload["user_id"]
+
+    if job_title_id == "other":
+        if not custom_job_title or not custom_job_title.strip():
+            return RedirectResponse("/education_detail?type=jobrole&action=invalid", status_code=303)
+
+        final_job_title_id = None
+        final_custom_job_title = custom_job_title.strip()
+    else:
+        final_job_title_id = int(job_title_id)
+        final_custom_job_title = None
+
+    save_job_title_selection(
+        user_id=user_id,
+        job_title_id=final_job_title_id,
+        custom_job_title=final_custom_job_title,
+        role_selection_id=role_selection_id
+    )
+
+    if role_selection_id:
+        return RedirectResponse("/education_detail?type=jobrole&action=updated", status_code=303)
+
+    return RedirectResponse("/education_detail?type=jobrole&action=added", status_code=303)
+@app.post("/delete-job-title-selection/{role_selection_id}")
+def delete_job_title_route(request: Request, role_selection_id: int):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return RedirectResponse("/login", status_code=303)
+
+    payload = verify_token(token)
+    if not payload:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = payload["user_id"]
+
+    delete_job_title_selection(role_selection_id, user_id)
+
+    return RedirectResponse("/education_detail?type=jobrole&action=deleted", status_code=303)

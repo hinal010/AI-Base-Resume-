@@ -22,6 +22,8 @@
                 💼 Experience {{ action }} successfully!
             {% elif type == "certification" %}
                 📜 Certification {{ action }} successfully!
+            {% elif type == "jobrole" %}
+            🧑‍💼 Job role {{ action }} successfully!
             {% endif %}
         </p>
     {% endif %}
@@ -218,7 +220,66 @@
     </table>
     {% endif %}
     </div>
+    <div class="section">
+    <h2>Job Role Selection</h2>
+
+    <form method="post" action="/save-job-title-selection">
+        <input type="hidden" name="role_selection_id" id="role_selection_id">
+
+        <select name="job_title_id" id="job_role_id" required>
+            <option value="">Select Job Role</option>
+            {% for job in job_titles %}
+                <option value="{{ job[0] }}">{{ job[1] }}</option>
+            {% endfor %}
+            <option value="other">Other</option>
+        </select>
+
+        <input type="text" name="custom_job_title" id="custom_job_role"
+               placeholder="Enter Job Role" style="display:none;">
+
+        <div class="action-buttons" style="margin-top: 10px;">
+            <button class="add-btn" type="submit">Save Role</button>
+            {% if selected_job_titles %}
+            <a href="/skill-mapping" class="edit-btn" style="text-decoration:none; display:inline-block;">Resume Generate</a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if selected_job_titles %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Selected Job Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for role in selected_job_titles %}
+            <tr>
+                <td>{{ role[2] }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="edit-btn"
+                            data-id="{{ role[0] }}"
+                            data-jobid="{{ role[1] if role[1] else 'other' }}"
+                            data-custom="{{ role[3] if role[3] else '' }}"
+                            onclick="editJobRoleFromButton(this)">
+                            Edit
+                        </button>
+
+                        <button type="button" class="delete-btn"
+                            onclick="commonDelete('/delete-job-title-selection/{{ role[0] }}', 'Are you sure you want to delete this role?')">
+                            Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
 </div>
-<script src="/static/script.js"></script>
+</div>
+<script src="/static/script.js?v=2"></script>
 </body>
 </html>

@@ -100,5 +100,16 @@ CREATE TABLE IF NOT EXISTS certification (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 """)
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS user_job_titles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    job_title_id INTEGER,
+    custom_job_title TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_title_id) REFERENCES job_title_master(id)
+)
+""")
 conn.commit()
 

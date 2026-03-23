@@ -321,3 +321,51 @@ def delete_certification(cert_id, user_id):
         WHERE id = ? AND user_id = ?
     """, (cert_id, user_id))
     conn.commit()
+
+
+def get_selected_job_titles(user_id):
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT
+            ujt.id,
+            ujt.job_title_id,
+            COALESCE(jtm.job_title, ujt.custom_job_title) AS job_title,
+            ujt.custom_job_title
+        FROM user_job_titles ujt
+        LEFT JOIN job_title_master jtm ON ujt.job_title_id = jtm.id
+        WHERE ujt.user_id = ?
+    """, (user_id,))
+    return cur.fetchall()
+
+
+def save_job_title_selection(user_id, job_title_id=None, custom_job_title=None, role_selection_id=None):
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id FROM user_job_titles
+        WHERE user_id = ?
+    """, (user_id,))
+    existing = cur.fetchone()
+
+    if existing:
+        cur.execute("""
+            UPDATE user_job_titles
+            SET job_title_id = ?, custom_job_title = ?
+            WHERE user_id = ?
+        """, (job_title_id, custom_job_title, user_id))
+    else:
+        cur.execute("""
+            INSERT INTO user_job_titles (user_id, job_title_id, custom_job_title)
+            VALUES (?, ?, ?)
+        """, (user_id, job_title_id, custom_job_title))
+
+    conn.commit()
+
+
+def delete_job_title_selection(role_selection_id, user_id):
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM user_job_titles
+        WHERE id = ? AND user_id = ?
+    """, (role_selection_id, user_id))
+    conn.commit()
