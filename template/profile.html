@@ -14,8 +14,8 @@
         <p class="success">{{ message }}</p>
         <script>
             setTimeout(function() {
-            window.location.href = "/index";
-            }, 10000); // redirect after 2 seconds
+            window.location.href = "/education_detail";
+            },  200); 
         </script>
         {% endif %}
 
@@ -33,7 +33,7 @@
             <input type="text" name="phone" placeholder="Phone Number" value="{{ phone or '' }}">
             <input type="text" name="location" placeholder="Location" value="{{ location or '' }}">
 
-            <button type="submit">Save Profile</button>
+            <button type="submit" >Save Profile</button>
         </form>
     </div>
 </body>

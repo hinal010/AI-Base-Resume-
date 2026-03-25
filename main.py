@@ -83,7 +83,19 @@ async def google_callback(request: Request):
         httponly=True
     )
     return response
+@app.get("/")
+def root(request: Request):
+    token = request.cookies.get("access_token")
 
+    if not token:
+        return RedirectResponse("/login")
+
+    payload = verify_token(token)
+
+    if not payload:
+        return RedirectResponse("/login")
+
+    return RedirectResponse("/index")
 @app.get("/index", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
